@@ -2,71 +2,145 @@
   <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/oolong_note_icon.png" alt="OolongNoteDock" width="128" />
 </p>
 
-# OolongNoteDock
+<h1 align="center">OolongNoteDock 🍵📝</h1>
 
-English | [简体中文](./README.zh-CN.md)
+<p align="center">
+  <em>A lightweight note-taking workbench inside VS Code.</em>
+</p>
 
-OolongNoteDock is a VS Code extension that turns VS Code into a lightweight note-taking workbench. It lays the groundwork for future support of additional document formats and AI IDE integrations.
+<p align="center">
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+  <img alt="VS Code" src="https://img.shields.io/badge/VS%20Code-%5E1.75.0-007ACC?logo=visualstudiocode&logoColor=white" />
+  <img alt="Markdown" src="https://img.shields.io/badge/Markdown-WYSIWYG-000?logo=markdown&logoColor=white" />
+  <img alt="Made with TypeScript" src="https://img.shields.io/badge/TypeScript-ready-3178C6?logo=typescript&logoColor=white" />
+  <a href="./README.zh-CN.md"><img alt="中文" src="https://img.shields.io/badge/README-%E4%B8%AD%E6%96%87-red" /></a>
+</p>
 
-## Highlights
+<p align="center">
+  <b>English</b> · <a href="./README.zh-CN.md">简体中文</a>
+</p>
 
-### WYSIWYG Markdown Editor
+---
 
-Powered by Vditor, with Mermaid, math, code highlighting, and multiple content themes — edit Markdown the way you read it.
+OolongNoteDock turns VS Code into a **lightweight note-taking workbench**. Edit Markdown the way you read it, sync your vault with Git, switch content themes on the fly, and stay friendly to Obsidian-style notes — all without leaving your editor.
 
-![WYSIWYG editor](https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/editor.png)
+> 🎯 **Design goal**: a single editor for code and notes, with room to grow into multi-format documents and AI-IDE integration.
 
-### Git Auto-Sync with Status Bar Indicator
+---
 
-Opt-in automatic commit and pull (configured per workspace). Once enabled, the status bar shows `$(sync) OolongNoteDock: Auto Sync` so you always know at a glance whether it's on. Click the item to sync immediately; the icon spins while syncing.
+## ✨ Highlights
 
-![Git auto-sync status bar](https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/git_auto_sync.png)
+### 📝 WYSIWYG Markdown Editor
 
-### Feature-Rich: Typora Theme Import & More
+Powered by **Vditor** — Mermaid diagrams, math formulas, syntax highlighting, and multiple content themes ship out of the box. Edit Markdown the way you read it, no constant preview-switching.
 
-Import any Typora `.css` theme (automatically converted to Vditor format), delete imported ones from the sidebar overflow menu, and manage notes with rich sidebar actions.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/editor.png" alt="WYSIWYG editor" />
+</p>
 
-![Feature-rich sidebar menu](https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/multi_feature.png)
+---
 
-### Multiple Built-in Themes
+### 🔄 Git Auto-Sync with Status Bar Indicator
 
-Switch among seven built-in content themes; theme changes broadcast live to all open editor tabs.
+Opt-in automatic commit & pull, configured **per workspace**. Once enabled, the status bar shows `$(sync) OolongNoteDock: Auto Sync` so you always know at a glance whether it's on. Click the item to sync immediately — the icon spins while syncing.
 
-![Theme picker](https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/multi_theme.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/git_auto_sync.png" alt="Git auto-sync status bar" />
+</p>
 
-## Features
+---
 
-- Notes tree in the sidebar (folders, `.md` files, and image files with preview)
-- Create, delete, and rename notes (with `Delete` / `F2` shortcuts)
-- "Create Note" is context-aware — it targets the selected folder or the directory of the selected file
-- "Reveal Active Note in Tree" button — locate the currently active editor tab inside the notes tree with one click
-- Send a file or directory path to the terminal
-- Automatic watching of local notes and images (no manual refresh needed)
-- Custom Markdown editor
-- Integrated **Vditor** editor (based on [vscode-markdown-editor](https://github.com/zaaack/vscode-markdown-editor)) with WYSIWYG and Instant-Rendering (IR) modes
-- Webview bundled with esbuild; Mermaid 11.13.0, code highlighting, and math formulas work out of the box
-- Multiple built-in content themes: Light, Dark, Ant Design, WeChat, GitHub, Vue, Drake Ayu
-- Import Typora CSS themes (automatically converted to Vditor format)
-- Delete imported themes (built-ins are protected); the theme list refreshes instantly after import / delete
-- Content theme synchronizes live across all open editor tabs
-- Vditor background color follows the content theme — only the Dark theme inherits VS Code's editor background, so light themes stay light even under a dark VS Code theme
-- Code-block syntax highlighting with automatic Light/Dark switching
-- Full Markdown support (tables, math, Mermaid, etc.)
-- Save/undo are delegated to the VS Code document model
-- Configurable attachment folder and automatic paste-to-save for images
-- Obsidian-style image references (`![[image.png]]`)
-- Intercepts Vditor shortcuts that would conflict with VS Code defaults (only while the editor is focused)
-- Automatic Git sync (scheduled commits and pulls)
+### 🛠️ Feature-Rich Sidebar & Typora Theme Import
 
-## Installation (from source)
+Import any Typora `.css` theme — automatically converted to Vditor format. Delete imported ones from the sidebar overflow menu, and manage notes with rich sidebar actions (create / rename / delete / reveal / send-to-terminal).
 
-1. Install dependencies: `npm install`
-2. Install webview dependencies: `cd media-src && npm install`
-3. Build the webview: `npm run webview:build`
-4. Compile the extension: `npm run compile`
-5. Press `F5` in VS Code to launch a debug instance
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/multi_feature.png" alt="Feature-rich sidebar menu" />
+</p>
 
-## Packaging
+---
+
+### 🎨 Multiple Built-in Themes
+
+Switch among **seven** built-in content themes. Theme changes broadcast live to all open editor tabs, so every view stays in sync.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/multi_theme.png" alt="Theme picker" />
+</p>
+
+---
+
+### 🔗 Obsidian-Compatible Image Format
+
+Turn on `oolongNoteDock.obsidianImageFormat` and pasted images are saved as `![[filename]]` — Obsidian vaults and OolongNoteDock stay source-compatible. Paths resolve relative to `notesRoot`, so the same note renders correctly in either tool.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/obsidian_image.png" alt="Obsidian image format" />
+</p>
+
+---
+
+### 💻 Send File / Folder Path to Terminal
+
+One click on the terminal icon next to any note or folder sends its absolute path into the active terminal (or spawns a new one). Perfect for `cd` jumps, running git on a single note, or piping a markdown file into other CLI tools.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/reynoldc/OolongNoteDock/main/resources/send_terminal.png" alt="Send path to terminal" />
+</p>
+
+---
+
+## 🚀 Quick Start
+
+<table>
+<tr>
+<td>
+
+**Install from VSIX** (recommended for end users)
+
+```bash
+code --install-extension oolong-note-dock-<version>.vsix
+```
+
+</td>
+<td>
+
+**Run from source** (for contributors)
+
+```bash
+npm install
+cd media-src && npm install && cd ..
+npm run webview:build
+npm run compile
+# then press F5 in VS Code
+```
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📦 Features at a Glance
+
+| Area | What you get |
+|---|---|
+| 📂 **Notes Tree** | Folders, `.md`, and images — all with preview. Empty folders hidden automatically. |
+| ⌨️ **Shortcuts** | `Delete` to trash, `F2` to rename. Context-aware "New Note". |
+| 🔄 **Auto Watcher** | Local changes reflected without manual refresh. |
+| 📝 **Vditor Editor** | WYSIWYG + Instant-Rendering (IR) modes. |
+| ⚡ **Bundled Runtime** | esbuild-bundled webview. Mermaid `11.13.0`, KaTeX, Highlight.js ready. |
+| 🎨 **Themes** | 7 built-ins + unlimited Typora imports. Per-tab live sync. |
+| 🧠 **Smart BG Color** | Only the `dark` theme inherits VS Code's editor background — light themes stay light. |
+| 🖼️ **Image Paste** | Auto-save to configurable attachment folder. |
+| 🔗 **Obsidian Mode** | `![[filename]]` syntax, resolved against `notesRoot`. |
+| 🛡️ **Shortcut Guard** | Intercepts Vditor shortcuts that clash with VS Code defaults (only while editor focused). |
+| 🔄 **Git Sync** | Scheduled commits + pulls, per-workspace, with status bar indicator. |
+| 💻 **Terminal** | Send any note or folder path to the active terminal. |
+
+---
+
+## 📦 Packaging
 
 Build a clean, installable `.vsix` (run from the project root):
 
@@ -84,27 +158,50 @@ Install it in VS Code via `Extensions: Install from VSIX...`, or from the comman
 code --install-extension ./oolong-note-dock-<version>.vsix
 ```
 
-## Known Issues
+---
 
-- Deep integration of advanced Vditor features (custom renderers, a few shortcuts) is still in progress
+## ⚙️ Settings
 
-## Settings
+| Setting | Default | Description |
+|---|---|---|
+| `oolongNoteDock.notesRoot` | `.` | Folder name for notes under the workspace root. Live-reloads on change. |
+| `oolongNoteDock.imageSaveFolder` | `Attachments` | Folder for uploaded images. Supports `${projectRoot}`, `${dir}`, etc. |
+| `oolongNoteDock.useVscodeThemeColor` | `true` | Use VS Code theme colors in the editor chrome. |
+| `oolongNoteDock.customCss` | `""` | Inject custom CSS into the editor. |
+| `oolongNoteDock.obsidianImageFormat` | `false` | Use Obsidian `![[image.png]]` format for pasted images. |
+| `oolongNoteDock.gitSync.enabled` | `false` | Enable automatic Git commit / pull. |
+| `oolongNoteDock.gitSync.autoCommitInterval` | `30` | Minutes between auto-commits. |
+| `oolongNoteDock.gitSync.autoPullInterval` | `30` | Minutes between auto-pulls. |
+| `oolongNoteDock.gitSync.commitMessageTemplate` | `Auto save: ${date}` | Commit message template. |
+| `oolongNoteDock.gitSync.timingMode` | `afterLastEdit` | `afterLastEdit` or `fixedInterval`. |
 
-- `oolongNoteDock.notesRoot` — folder name for notes under the workspace root (default `OolongNotes`); live-reload on change
-- `oolongNoteDock.imageSaveFolder` — folder for uploaded images (default `Attachments`); supports `${projectRoot}`, `${dir}`, etc.
-- `oolongNoteDock.useVscodeThemeColor` — use VS Code theme colors in the editor (default `true`)
-- `oolongNoteDock.customCss` — custom CSS for the editor
-- `oolongNoteDock.obsidianImageFormat` — use Obsidian image reference format `![[image.png]]` (default `false`). When enabled, pasted images use this format and paths are resolved relative to `notesRoot`
+---
 
-## Acknowledgements
+## 🚧 Known Issues
 
-- [vscode-markdown-editor](https://github.com/zaaack/vscode-markdown-editor) by zaaack (MIT License) — this project directly reuses its webview editor code
+- Deep integration of advanced Vditor features (custom renderers, a few shortcuts) is still in progress.
 
-## Roadmap
+## 🗺️ Roadmap
 
-- Dual-pane view and more complete Markdown coverage
-- Improved image upload and attachment management
+- [ ] Dual-pane view and more complete Markdown coverage
+- [ ] Improved image upload & attachment management
+- [ ] Multi-format document support (HTML, rich text, etc.)
+- [ ] AI-IDE integration hooks
 
-## License
+---
 
-[MIT](./LICENSE)
+## 🙏 Acknowledgements
+
+- [**vscode-markdown-editor**](https://github.com/zaaack/vscode-markdown-editor) by **zaaack** (MIT) — the webview editor code is directly reused from this project.
+- [**Vditor**](https://github.com/Vanessa219/vditor) by **Vanessa219** (MIT) — the underlying WYSIWYG engine.
+- Built-in Typora-style themes adapted from the Typora community.
+
+---
+
+## 📄 License
+
+Released under the [**MIT License**](./LICENSE).
+
+<p align="center">
+  Made with 🍵 and ☕ for people who write Markdown every day.
+</p>
