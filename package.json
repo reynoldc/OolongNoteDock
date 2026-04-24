@@ -1,0 +1,332 @@
+{
+  "name": "oolong-note-dock",
+  "displayName": "OolongNoteDock",
+  "description": "OolongNoteDock VSCode 笔记插件",
+  "version": "0.0.1",
+  "publisher": "oolong",
+  "icon": "resources/oolong_note_icon.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "l10n": "./l10n",
+  "activationEvents": [
+    "onView:oolongNoteDock.notes",
+    "onCommand:oolongNoteDock.createNote",
+    "onCommand:oolongNoteDock.deleteNote",
+    "onCommand:oolongNoteDock.renameNote",
+    "onCommand:oolongNoteDock.refreshNotes",
+    "onCommand:oolongNoteDock.syncNow",
+    "onCustomEditor:oolongNoteDock.markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "oolongNoteDock",
+          "title": "%viewContainer.oolongNoteDock%",
+          "icon": "resources/oolong.svg"
+        }
+      ]
+    },
+    "views": {
+      "oolongNoteDock": [
+        {
+          "id": "oolongNoteDock.notes",
+          "name": "%view.oolongNoteDock.notes%"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "oolongNoteDock.createNote",
+        "title": "%command.oolongNoteDock.createNote%",
+        "icon": {
+          "light": "resources/icons/light/create.svg",
+          "dark": "resources/icons/dark/create.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.syncNow",
+        "title": "%command.oolongNoteDock.syncNow%",
+        "enablement": "!oolongNoteDock.syncing",
+        "icon": {
+          "light": "resources/icons/light/sync.svg",
+          "dark": "resources/icons/dark/sync.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.syncingIndicator",
+        "title": "%command.oolongNoteDock.syncingIndicator%",
+        "enablement": "false",
+        "icon": {
+          "light": "resources/icons/light/syncing.svg",
+          "dark": "resources/icons/dark/syncing.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.deleteNote",
+        "title": "%command.oolongNoteDock.deleteNote%",
+        "icon": {
+          "light": "resources/icons/light/delete.svg",
+          "dark": "resources/icons/dark/delete.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.renameNote",
+        "title": "%command.oolongNoteDock.renameNote%",
+        "icon": {
+          "light": "resources/icons/light/rename.svg",
+          "dark": "resources/icons/dark/rename.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.refreshNotes",
+        "title": "%command.oolongNoteDock.refreshNotes%",
+        "icon": {
+          "light": "resources/icons/light/refresh.svg",
+          "dark": "resources/icons/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.revealActiveNote",
+        "title": "%command.oolongNoteDock.revealActiveNote%",
+        "icon": "$(target)"
+      },
+      {
+        "command": "oolongNoteDock.editGitignore",
+        "title": "%command.oolongNoteDock.editGitignore%"
+      },
+      {
+        "command": "oolongNoteDock.sendToTerminal",
+        "title": "%command.oolongNoteDock.sendToTerminal%",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "oolongNoteDock.importTheme",
+        "title": "%command.oolongNoteDock.importTheme%",
+        "icon": "$(color-mode)"
+      },
+      {
+        "command": "oolongNoteDock.deleteImportedTheme",
+        "title": "%command.oolongNoteDock.deleteImportedTheme%",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "oolongNoteDock.openSettings",
+        "title": "%command.oolongNoteDock.openSettings%",
+        "icon": {
+          "light": "resources/icons/light/settings.svg",
+          "dark": "resources/icons/dark/settings.svg"
+        }
+      },
+      {
+        "command": "oolongNoteDock.noop",
+        "title": "OolongNoteDock: No-op (passthrough to editor)"
+      }
+    ],
+    "keybindings": [
+      { "command": "oolongNoteDock.deleteNote", "key": "delete", "mac": "cmd+backspace", "when": "focusedView == oolongNoteDock.notes && listFocus" },
+      { "command": "oolongNoteDock.renameNote", "key": "f2", "when": "focusedView == oolongNoteDock.notes && listFocus" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+b", "mac": "cmd+b", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+i", "mac": "cmd+i", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+u", "mac": "cmd+u", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+d", "mac": "cmd+d", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+e", "mac": "cmd+e", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+h", "mac": "cmd+h", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+j", "mac": "cmd+j", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+k", "mac": "cmd+k", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+l", "mac": "cmd+l", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+m", "mac": "cmd+m", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+o", "mac": "cmd+o", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+g", "mac": "cmd+g", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+shift+b", "mac": "cmd+shift+b", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+shift+e", "mac": "cmd+shift+e", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+shift+h", "mac": "cmd+shift+h", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+shift+i", "mac": "cmd+shift+i", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+shift+o", "mac": "cmd+shift+o", "when": "activeWebviewPanelId == oolongNoteDock.markdown" }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "oolongNoteDock.createNote",
+          "when": "view == oolongNoteDock.notes",
+          "group": "navigation"
+        },
+        {
+          "command": "oolongNoteDock.revealActiveNote",
+          "when": "view == oolongNoteDock.notes",
+          "group": "navigation"
+        },
+        {
+          "command": "oolongNoteDock.refreshNotes",
+          "when": "view == oolongNoteDock.notes",
+          "group": "2_config"
+        },
+        {
+          "command": "oolongNoteDock.syncNow",
+          "when": "view == oolongNoteDock.notes && !oolongNoteDock.syncing",
+          "group": "1_sync"
+        },
+        {
+          "command": "oolongNoteDock.syncingIndicator",
+          "when": "view == oolongNoteDock.notes && oolongNoteDock.syncing",
+          "group": "1_sync"
+        },
+        {
+          "command": "oolongNoteDock.openSettings",
+          "when": "view == oolongNoteDock.notes",
+          "group": "2_config"
+        },
+        {
+          "command": "oolongNoteDock.importTheme",
+          "when": "view == oolongNoteDock.notes",
+          "group": "2_config"
+        },
+        {
+          "command": "oolongNoteDock.deleteImportedTheme",
+          "when": "view == oolongNoteDock.notes",
+          "group": "2_config"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "oolongNoteDock.sendToTerminal",
+          "when": "view == oolongNoteDock.notes",
+          "group": "inline@0"
+        },
+        {
+          "command": "oolongNoteDock.renameNote",
+          "when": "view == oolongNoteDock.notes",
+          "group": "inline@1"
+        },
+        {
+          "command": "oolongNoteDock.deleteNote",
+          "when": "view == oolongNoteDock.notes",
+          "group": "inline@2"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "oolongNoteDock.markdown",
+        "displayName": "%customEditor.oolongNoteDock.markdown%",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "%config.section.editor%",
+        "properties": {
+          "oolongNoteDock.notesRoot": {
+            "type": "string",
+            "default": ".",
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.notesRoot%"
+          },
+          "oolongNoteDock.imageSaveFolder": {
+            "type": "string",
+            "default": "Attachments",
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.imageSaveFolder%"
+          },
+          "oolongNoteDock.useVscodeThemeColor": {
+            "type": "boolean",
+            "default": true,
+            "description": "%config.oolongNoteDock.useVscodeThemeColor%"
+          },
+          "oolongNoteDock.customCss": {
+            "type": "string",
+            "default": "",
+            "description": "%config.oolongNoteDock.customCss%"
+          },
+          "oolongNoteDock.obsidianImageFormat": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.obsidianImageFormat%"
+          }
+        }
+      },
+      {
+        "title": "%config.section.gitSync%",
+        "properties": {
+          "oolongNoteDock.gitSync.enabled": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.gitSync.enabled%"
+          },
+          "oolongNoteDock.gitSync.autoCommitInterval": {
+            "type": "number",
+            "default": 30,
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.gitSync.autoCommitInterval%"
+          },
+          "oolongNoteDock.gitSync.autoPullInterval": {
+            "type": "number",
+            "default": 30,
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.gitSync.autoPullInterval%"
+          },
+          "oolongNoteDock.gitSync.commitMessageTemplate": {
+            "type": "string",
+            "default": "Auto save: ${date}",
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.gitSync.commitMessageTemplate%"
+          },
+          "oolongNoteDock.gitSync.timingMode": {
+            "type": "string",
+            "enum": [
+              "afterLastEdit",
+              "fixedInterval"
+            ],
+            "default": "afterLastEdit",
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.gitSync.timingMode%"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./",
+    "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
+    "format": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "format:write": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "test": "node ./out/test/runTest.js",
+    "test:vscode-1.75": "node ./out/test/runTest.js --vscodeVersion 1.75.0",
+    "test:vscode-1.80": "node ./out/test/runTest.js --vscodeVersion 1.80.0",
+    "test:vscode-1.85": "node ./out/test/runTest.js --vscodeVersion 1.85.0",
+    "smoke": "node ./out/test/smokeTest.js",
+    "webview:build": "cd media-src && npm run build",
+    "webview:watch": "cd media-src && npm run start"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.75.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "less": "^4.5.1",
+    "mocha": "^10.2.0",
+    "prettier": "^3.2.5",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}

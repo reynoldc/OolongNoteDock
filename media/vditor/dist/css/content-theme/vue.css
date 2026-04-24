@@ -1,0 +1,119 @@
+/* Vue Theme for Vditor (adapted from Typora Vue theme) */
+
+.vditor-reset {
+  color: #34495e;
+  font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.vditor-reset a, .vditor-ir__link {
+  color: #42b983;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.vditor-reset a:hover {
+  text-decoration: underline;
+}
+
+.vditor-reset h1, .vditor-reset h2, .vditor-reset h3,
+.vditor-reset h4, .vditor-reset h5, .vditor-reset h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #2c3e50;
+}
+
+.vditor-reset h1 { font-size: 1.8em; }
+.vditor-reset h2 { font-size: 1.5em; }
+.vditor-reset h3 { font-size: 1.25em; }
+.vditor-reset h4 { font-size: 1.1em; }
+.vditor-reset h5 { font-size: 1em; }
+.vditor-reset h6 { font-size: 0.9em; color: #7f8c8d; }
+
+.vditor-reset h1 {
+  padding-bottom: 0.4em;
+  border-bottom: 2px solid #42b983;
+}
+
+.vditor-reset h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #42b983;
+}
+
+.vditor-reset p {
+  margin-top: 0;
+  margin-bottom: 1.2em;
+}
+
+.vditor-reset blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  color: #7f8c8d;
+  border-left: 4px solid #42b983;
+  background-color: #f8f8f8;
+}
+
+.vditor-reset code:not(.hljs):not(.highlight-chroma) {
+  padding: 0.2em 0.4em;
+  color: #e96900;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.vditor-reset pre {
+  padding: 16px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+}
+
+.vditor-reset hr {
+  height: 1px;
+  margin: 2em 0;
+  background-color: #42b983;
+  border: 0;
+  opacity: 0.3;
+}
+
+.vditor-reset table {
+  border-collapse: collapse;
+  width: auto;
+}
+
+.vditor-reset table th, .vditor-reset table td {
+  padding: 8px 16px;
+  border: 1px solid #e8e8e8;
+}
+
+.vditor-reset table th {
+  font-weight: 600;
+  background-color: #f0f7f4;
+  color: #2c3e50;
+}
+
+.vditor-reset table tr:nth-child(2n) {
+  background-color: #f8faf9;
+}
+
+.vditor-reset img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.vditor-reset strong, .vditor-reset b {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.vditor-reset ul > li { list-style-type: circle; }
+.vditor-reset ol > li { list-style-type: decimal; }
+
+.vditor-reset mark {
+  background-color: #d4f8e8;
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+}

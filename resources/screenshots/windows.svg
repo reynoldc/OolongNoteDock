@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" fill="none">
+  <rect width="640" height="360" rx="16" fill="#1E1E1E"/>
+  <rect x="24" y="24" width="592" height="312" rx="12" fill="#252526"/>
+  <text x="320" y="180" fill="#C5C5C5" font-size="24" font-family="Segoe UI, sans-serif" text-anchor="middle">
+    Windows Screenshot Placeholder
+  </text>
+</svg>
