@@ -95,6 +95,44 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     }
   }
 
+  /**
+   * Debounce + dismiss state for the code-theme mismatch hint. The webview
+   * pings us on every content-theme switch; we only want to show the info
+   * message at most once per N seconds across all panels, and never if the
+   * user has chosen "Don't show again".
+   */
+  private static lastMismatchHintAt = 0;
+  private static readonly DismissKey = "codeThemeHintDismissed";
+
+  public static async maybeShowCodeThemeHint(
+    context: vscode.ExtensionContext
+  ): Promise<void> {
+    if (context.globalState.get<boolean>(MarkdownCustomEditor.DismissKey)) {
+      return;
+    }
+    const now = Date.now();
+    if (now - MarkdownCustomEditor.lastMismatchHintAt < 10_000) {
+      // Already surfaced recently — don't spam.
+      return;
+    }
+    MarkdownCustomEditor.lastMismatchHintAt = now;
+
+    const gotIt = t("codeThemeHint.gotIt");
+    const dontShow = t("codeThemeHint.dontShow");
+    const pick = await vscode.window.showInformationMessage(
+      t("codeThemeHint.message"),
+      gotIt,
+      dontShow
+    );
+    if (pick === dontShow) {
+      await context.globalState.update(
+        MarkdownCustomEditor.DismissKey,
+        true
+      );
+    }
+  }
+
+
   public async resolveCustomTextEditor(
     document: vscode.TextDocument,
     webviewPanel: vscode.WebviewPanel
@@ -285,6 +323,11 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
             break;
           case "info":
             void vscode.window.showInformationMessage(message.content);
+            break;
+          case "hint-code-theme-mismatch":
+            await MarkdownCustomEditor.maybeShowCodeThemeHint(
+              this.context
+            );
             break;
           case "error":
             showError(message.content);

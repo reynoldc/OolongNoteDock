@@ -7,7 +7,11 @@ const fallbackMessages: Record<string, string> = {
   "statusBar.gitSync.tooltipEnabled":
     "OolongNoteDock Git auto-sync is ON. Click to sync now.",
   "statusBar.gitSync.tooltipBusy":
-    "OolongNoteDock Git auto-sync is running…"
+    "OolongNoteDock Git auto-sync is running…",
+  "codeThemeHint.message":
+    "This content theme's backdrop clashes with your current code-highlight theme. Consider picking a matching one from the toolbar → ··· → code-theme.",
+  "codeThemeHint.gotIt": "Got it",
+  "codeThemeHint.dontShow": "Don't show again"
 };
 
 const formatFallback = (

@@ -44,14 +44,14 @@ export const toolbar = [
 	'undo',
 	'redo',
 	'|',
-	'content-theme',
+	{ name: 'content-theme', tip: 'Content Theme' },
+	{ name: 'code-theme', tip: 'Code Block Theme' },
 	{ name: 'edit-mode', tipPosition: 'e', },
 	{
 		name: 'more',
 		tipPosition: 'e',
 		toolbar: [
 			'both',
-			'code-theme',
 			'outline',
 			'preview',
 			{

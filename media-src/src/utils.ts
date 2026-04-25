@@ -150,9 +150,14 @@ export function watchContentThemeChange() {
     if (current) {
       document.body.setAttribute('data-content-theme', current)
     }
-    // Debounce so Vditor's internal state (options.preview.theme.current) has
-    // settled by the time we read it in saveVditorOptions().
-    setTimeout(() => saveVditorOptions(), 50)
+    // Check whether the new content theme's backdrop clashes with the current
+    // code-highlight theme, and nudge the extension to surface a hint. We do
+    // this only on user-triggered theme switches (sync-theme broadcasts set
+    // suppressThemeSave so they fall through the early-return above).
+    setTimeout(() => {
+      maybeHintCodeThemeMismatch(current)
+      saveVditorOptions()
+    }, 50)
   }
 
   // (a) Capture-phase click on content-theme panel buttons
@@ -189,6 +194,59 @@ export function watchContentThemeChange() {
     }
   })
   headObserver.observe(document.head, { childList: true })
+}
+
+/**
+ * After a content-theme switch, check whether the new backdrop and the
+ * currently-loaded hljs code-theme have wildly different brightness, and if so
+ * ping the extension to show a one-time hint.
+ *
+ * We sample the *computed* background of `.vditor-reset` (body after override)
+ * and `.hljs` (the code block itself). A sample is dark when its luminance
+ * (Y in sRGB) is below 0.4, bright when above 0.6. "Mismatch" means one is
+ * dark and the other is bright.
+ */
+function maybeHintCodeThemeMismatch(contentTheme: string | undefined): void {
+  if (!contentTheme) return
+  try {
+    const reset = document.querySelector('.vditor-reset') as HTMLElement | null
+    const hljs = document.querySelector('.vditor-reset pre > code, .vditor-reset code.hljs, pre > code.hljs') as HTMLElement | null
+    if (!reset) return
+    const pageLum = luminanceFromCss(getComputedStyle(reset).backgroundColor)
+    const codeLum = hljs
+      ? luminanceFromCss(getComputedStyle(hljs).backgroundColor)
+      : null
+    if (pageLum === null || codeLum === null) return
+    const pageIsDark = pageLum < 0.4
+    const codeIsDark = codeLum < 0.4
+    const pageIsLight = pageLum > 0.6
+    const codeIsLight = codeLum > 0.6
+    const mismatch =
+      (pageIsDark && codeIsLight) || (pageIsLight && codeIsDark)
+    if (mismatch) {
+      vscode.postMessage({
+        command: 'hint-code-theme-mismatch',
+        contentTheme,
+      })
+    }
+  } catch (err) {
+    console.error('[OND] mismatch check failed', err)
+  }
+}
+
+/** Parse "rgb(a,b,c)" / "rgba(a,b,c,d)" and return relative luminance 0..1. */
+function luminanceFromCss(value: string): number | null {
+  const m = /rgba?\(([^)]+)\)/.exec(value)
+  if (!m || !m[1]) return null
+  const parts = m[1].split(',').map((s) => parseFloat(s.trim()))
+  if (parts.length < 3 || parts.some((n) => Number.isNaN(n))) return null
+  // Simple perceived luminance (sRGB, gamma ~2.2 not applied — good enough
+  // for a "light vs dark" threshold).
+  const [r, g, b] = parts
+  const R = (r ?? 0) / 255
+  const G = (g ?? 0) / 255
+  const B = (b ?? 0) / 255
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B
 }
 
 // Monkey-patch vditor.setContentTheme so we catch theme changes regardless of
