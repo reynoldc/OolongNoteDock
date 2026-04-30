@@ -23,3 +23,6 @@ temp/**
 **/*.swo
 **/*.tmp
 **/*.vsix
+tsconfig.json
+opencode.css
+gruvbox-theme-v0.1.0/**

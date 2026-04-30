@@ -4,6 +4,10 @@
   "description": "OolongNoteDock VSCode 笔记插件",
   "version": "0.0.3",
   "publisher": "oolong",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reynoldc/OolongNoteDock.git"
+  },
   "icon": "resources/oolong_note_icon.png",
   "engines": {
     "vscode": "^1.75.0"
