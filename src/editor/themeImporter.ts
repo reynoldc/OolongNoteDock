@@ -27,15 +27,24 @@ export function convertTyporaCss(css: string, themeKey?: string): string {
   //    standalone body {} — so "body h1" becomes ".vditor-reset h1".
   result = result.replace(/\bbody\s+(?=[a-zA-Z.#\[])/g, ".vditor-reset ");
 
-  // 4. Remove standalone body { ... } and html { ... } blocks.
+  // 4. Remove standalone body { ... }, html { ... }, and combined
+  //    `html, body { ... }` blocks (any comma-separated list of html/body).
   result = result.replace(
-    /(?:^|\n)\s*(?:html|body)\s*\{[^}]*\}/g,
+    /(?:^|\n)\s*(?:(?:html|body)\s*,\s*)*(?:html|body)\s*\{[^}]*\}/g,
     ""
   );
 
   // 5. Replace content selector used by some Typora themes
   result = result.replace(/\.typora-export\s+/g, "");
   result = result.replace(/\.typora-export/g, "");
+
+  // 5b. Remove Typora-specific layout rules that conflict with Vditor:
+  //     - padding-left/right on .vditor-reset (Vditor has its own padding)
+  //     - negative margin-left on headings (Typora's "outdent heading" style)
+  //     - @media blocks that only adjust these paddings/margins
+  result = result.replace(/\bpadding-left\s*:\s*\d+ch\s*;/g, "");
+  result = result.replace(/\bpadding-right\s*:\s*\d+ch\s*;/g, "");
+  result = result.replace(/\bmargin-left\s*:\s*-\d+ch\s*;/g, "");
 
   // 6. Scope bare HTML-element selectors (e.g. `pre {}`, `code {}`,
   //    `h1::before {}`, `table th {}`) to `.vditor-reset`, otherwise Vditor's
@@ -50,7 +59,12 @@ export function convertTyporaCss(css: string, themeKey?: string): string {
   //    `[data-content-theme="<key>"]` so other themes aren't affected.
   const scopedOverrides = buildScopedOverrides(themeKey, bodyExtract);
 
-  return (result.trim() + "\n" + scopedOverrides).trim() + "\n";
+  // 8. Prepend a chrome-hint marker so the frontend can pick the correct
+  //    Vditor chrome theme (dark/classic) based on the actual background
+  //    luminance — not just the theme name.
+  const chromeHint = detectChromeHint(bodyExtract.background);
+
+  return (chromeHint + result.trim() + "\n" + scopedOverrides).trim() + "\n";
 }
 
 interface BodyColors {
@@ -58,30 +72,71 @@ interface BodyColors {
   color?: string;
 }
 
-/** Pull `background[-color]` and `color` out of any standalone body { ... }. */
+/** Pull `background[-color]` and `color` out of any body { ... } block,
+ *  including combined selectors like `html, body { ... }`. */
 function extractBodyColors(css: string): BodyColors {
   const out: BodyColors = {};
-  const regex = /(?:^|\n)\s*body\s*\{([^}]*)\}/g;
+  // Build a lookup table of :root CSS variables so we can resolve var()
+  // references to concrete values (e.g. var(--bg) → #282828).
+  const rootVars = extractRootVars(css);
+
+  // Match standalone `body { ... }` as well as combined selectors that include
+  // `body` (e.g. `html, body { ... }`, `html,body{ ... }`).
+  const regex = /(?:^|\n)\s*(?:[\w]+\s*,\s*)*body(?:\s*,\s*[\w]+)*\s*\{([^}]*)\}/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(css)) !== null) {
     const block = match[1];
     if (!block) continue;
     // background-color has higher precedence than background shorthand
     const bgColor = /background-color\s*:\s*([^;]+?)\s*;/i.exec(block);
-    const bgShort = /background\s*:\s*([^;]+?)\s*;/i.exec(block);
+    // Use greedy last-match for `background:` since CSS cascading means the
+    // last declaration wins (gruvbox has two `background:` lines).
+    const bgShortAll = [...block.matchAll(/background\s*:\s*([^;]+?)\s*;/gi)];
+    const bgShort = bgShortAll.length > 0 ? bgShortAll[bgShortAll.length - 1] : null;
     const color = /(?:^|;|\{)\s*color\s*:\s*([^;]+?)\s*;/i.exec(block);
-    if (bgColor && bgColor[1]) out.background = bgColor[1];
+    if (bgColor && bgColor[1]) out.background = resolveVar(bgColor[1], rootVars);
     else if (bgShort && bgShort[1]) {
       // Take only the color token; strip image/gradient/url if any.
       const candidate = bgShort[1].trim();
       // Accept common color literals: #hex, rgb/rgba, var(), named colors
       const colorMatch =
         /(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|var\([^)]+\)|[a-zA-Z]+)/.exec(candidate);
-      if (colorMatch && colorMatch[1]) out.background = colorMatch[1];
+      if (colorMatch && colorMatch[1]) out.background = resolveVar(colorMatch[1], rootVars);
     }
-    if (color && color[1]) out.color = color[1];
+    if (color && color[1]) out.color = resolveVar(color[1], rootVars);
   }
   return out;
+}
+
+/** Extract all CSS custom properties from :root { ... } blocks. */
+function extractRootVars(css: string): Map<string, string> {
+  const vars = new Map<string, string>();
+  const rootRegex = /:root\s*\{([^}]*)\}/g;
+  let m: RegExpExecArray | null;
+  while ((m = rootRegex.exec(css)) !== null) {
+    const block = m[1];
+    if (!block) continue;
+    const propRegex = /(--[\w-]+)\s*:\s*([^;]+?)\s*;/g;
+    let p: RegExpExecArray | null;
+    while ((p = propRegex.exec(block)) !== null) {
+      if (p[1] && p[2]) vars.set(p[1], p[2]);
+    }
+  }
+  return vars;
+}
+
+/** Resolve a CSS value that may be `var(--name)` to its concrete value.
+ *  Follows up to 5 levels of indirection (var → var → literal). */
+function resolveVar(value: string, rootVars: Map<string, string>): string {
+  let current = value.trim();
+  for (let i = 0; i < 5; i++) {
+    const varMatch = /^var\(\s*(--[\w-]+)\s*\)$/.exec(current);
+    if (!varMatch || !varMatch[1]) break;
+    const resolved = rootVars.get(varMatch[1]);
+    if (!resolved) break; // Cannot resolve further — keep the var() as-is
+    current = resolved.trim();
+  }
+  return current;
 }
 
 /**
@@ -107,20 +162,92 @@ function buildScopedOverrides(
     lines.push(`  color: ${body.color};`);
   }
   if (lines.length === 0) return "";
+  const sel = `body[data-content-theme="${cssEscape(themeKey)}"]`;
   // Using `body[data-content-theme]` guarantees these only apply when this
-  // theme is active. `.vditor` for the chrome, `.vditor-reset` for the content
-  // area — we cover both.
-  return `
+  // theme is active. We cover:
+  // - `.vditor` for the chrome (toolbar bg, panel bg)
+  // - `.vditor-reset` for the content area
+  // - `.vditor-ir pre.vditor-reset` directly for the IR editor pane
+  // - `.vditor .vditor-toolbar` for the toolbar element
+  let result = `
 /* OolongNoteDock: palette imported from the original body { ... } block. */
-body[data-content-theme="${cssEscape(themeKey)}"] .vditor,
-body[data-content-theme="${cssEscape(themeKey)}"] .vditor-reset {
+${sel} .vditor,
+${sel} .vditor-reset {
 ${lines.join("\n")}
 }
 `;
+  if (body.background) {
+    result += `${sel} .vditor-ir pre.vditor-reset,
+${sel} .vditor-ir pre.vditor-reset:focus {
+  background-color: ${body.background};${body.color ? `\n  color: ${body.color};` : ""}
+}
+${sel} .vditor .vditor-toolbar {
+  background-color: ${body.background};
+}
+`;
+  }
+  return result;
 }
 
 function cssEscape(value: string): string {
   return value.replace(/["\\]/g, "\\$&");
+}
+
+/**
+ * Determine the recommended Vditor chrome theme based on the background color's
+ * perceived luminance. Returns a CSS comment header that the frontend reads.
+ *
+ * Format: `/* @ond-chrome: dark *\/\n` or `/* @ond-chrome: classic *\/\n`
+ * If the color cannot be determined, defaults to no marker (frontend falls back
+ * to its own heuristic).
+ */
+function detectChromeHint(background: string | undefined): string {
+  if (!background) return "";
+  const dark = isDarkColor(background);
+  if (dark === null) return ""; // unrecognized format
+  const hint = dark ? "dark" : "classic";
+  return `/* @ond-chrome: ${hint} */\n`;
+}
+
+/**
+ * Return true if a CSS color value appears perceptually "dark" (luminance < 0.5).
+ * Supports #hex (3/4/6/8 digit), rgb()/rgba(). Returns null for unrecognized formats.
+ */
+function isDarkColor(value: string): boolean | null {
+  const trimmed = value.trim();
+  // #RGB, #RRGGBB, #RGBA, #RRGGBBAA
+  const hexMatch = /^#([0-9a-fA-F]{3,8})$/.exec(trimmed);
+  if (hexMatch && hexMatch[1]) {
+    const hex = hexMatch[1];
+    let r: number, g: number, b: number;
+    if (hex.length === 3 || hex.length === 4) {
+      r = parseInt(hex[0]! + hex[0]!, 16);
+      g = parseInt(hex[1]! + hex[1]!, 16);
+      b = parseInt(hex[2]! + hex[2]!, 16);
+    } else {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+    }
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  }
+  // rgb(r, g, b) / rgba(r, g, b, a)
+  const rgbMatch = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(trimmed);
+  if (rgbMatch && rgbMatch[1] && rgbMatch[2] && rgbMatch[3]) {
+    const r = parseInt(rgbMatch[1], 10);
+    const g = parseInt(rgbMatch[2], 10);
+    const b = parseInt(rgbMatch[3], 10);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  }
+  // Named colors — only cover the most common ones for theme backgrounds
+  const named: Record<string, boolean> = {
+    black: true, white: false, transparent: false,
+  };
+  const lower = trimmed.toLowerCase();
+  if (lower in named) return named[lower]!;
+  return null; // Cannot determine
 }
 
 /** HTML element names that Typora themes typically style at the bare-tag level. */

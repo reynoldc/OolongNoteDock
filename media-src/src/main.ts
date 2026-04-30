@@ -28,6 +28,12 @@ function initVditor(msg) {
   let inputTimer
   let defaultOptions: any = {}
 
+  // Track which imported themes should use dark chrome. The built-in "dark"
+  // theme is always dark; user-imported themes carry an @ond-chrome hint that
+  // the backend resolves at scan time.
+  const darkThemes: Set<string> = new Set(['dark', ...(msg.darkThemes || [])])
+  ;(window as any).__ondDarkThemes = darkThemes
+
   const themeList = {
     "ant-design": "Ant Design",
     "dark": "Dark",
@@ -57,13 +63,9 @@ function initVditor(msg) {
   const fallbackTheme = msg.theme === 'dark' ? 'dark' : 'light'
   const contentTheme = savedContentTheme || fallbackTheme
 
-  // Chrome theme follows content theme (consistent with fixDarkTheme behavior
-  // when user clicks a content-theme button in the toolbar). Using the VS Code
-  // theme here would cause a mismatch: e.g. VS Code=dark + content=github would
-  // add .vditor--dark, whose CSS vars force a dark textarea background even
-  // though GitHub is a light theme, so the editor appears black behind a light
-  // content theme until the user manually re-picks the theme.
-  if (contentTheme === 'dark') {
+  // Chrome theme follows content theme based on background luminance.
+  // darkThemes contains all themes whose CSS was detected as dark-background.
+  if (darkThemes.has(contentTheme)) {
     defaultOptions.theme = 'dark'
   } else {
     defaultOptions.theme = 'classic'
@@ -172,8 +174,9 @@ function applyRemoteTheme(options: any) {
   if (contentTheme) {
     try {
       const vOpts: any = vditor.vditor && vditor.vditor.options
-      // Chrome theme follows content theme (see initVditor comment).
-      const chromeTheme: 'dark' | 'classic' = contentTheme === 'dark' ? 'dark' : 'classic'
+      // Chrome theme follows content theme based on luminance-detected dark list.
+      const darkThemes: Set<string> = (window as any).__ondDarkThemes || new Set(['dark'])
+      const chromeTheme: 'dark' | 'classic' = darkThemes.has(contentTheme) ? 'dark' : 'classic'
       let path = vOpts && vOpts.preview && vOpts.preview.theme && vOpts.preview.theme.path
       if (!path) {
         const linkEl = document.getElementById('vditorContentTheme') as HTMLLinkElement | null
@@ -248,6 +251,10 @@ window.addEventListener('message', (e) => {
       // without reopening the tab.
       if (!vditor) break
       try {
+        // Update the global dark themes set
+        const darkThemes: Set<string> = new Set(['dark', ...(msg.darkThemes || [])])
+        ;(window as any).__ondDarkThemes = darkThemes
+
         const builtIn: Record<string, string> = {
           'ant-design': 'Ant Design',
           'dark': 'Dark',

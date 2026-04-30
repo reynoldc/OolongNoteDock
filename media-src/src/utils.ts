@@ -45,8 +45,10 @@ export function fixDarkTheme() {
   $ct.nextElementSibling.addEventListener('click', (e) => {
     if ((e.target as any).tagName !== 'BUTTON') return
     let type = (e.target as any).getAttribute('data-type')
-    if (type === 'dark') {
-      vditor.setTheme(type)
+    // Use the luminance-based dark themes set to decide chrome theme
+    const darkThemes: Set<string> = (window as any).__ondDarkThemes || new Set(['dark'])
+    if (type && darkThemes.has(type)) {
+      vditor.setTheme('dark')
     } else {
       vditor.setTheme('classic')
     }

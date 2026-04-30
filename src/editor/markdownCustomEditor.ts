@@ -58,11 +58,12 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
   /** Scan content-theme directory, returning user-imported themes (non built-in). */
   public static async scanExtraThemes(
     extensionUri: vscode.Uri
-  ): Promise<Record<string, string>> {
+  ): Promise<{ extras: Record<string, string>; darkThemes: string[] }> {
     const builtIn = new Set([
       "ant-design", "dark", "drake-ayu", "github", "light", "vue", "wechat",
     ]);
     const extras: Record<string, string> = {};
+    const darkThemes: string[] = [];
     try {
       const themeDir = vscode.Uri.joinPath(
         extensionUri, "media", "vditor", "dist", "css", "content-theme"
@@ -74,23 +75,36 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         if (!builtIn.has(key)) {
           const label = key.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
           extras[key] = label;
+          // Read the first few bytes to detect the @ond-chrome hint
+          try {
+            const fileUri = vscode.Uri.joinPath(themeDir, name);
+            const raw = Buffer.from(
+              await vscode.workspace.fs.readFile(fileUri)
+            ).toString("utf-8", 0, 100);
+            if (/\/\*\s*@ond-chrome:\s*dark\s*\*\//.test(raw)) {
+              darkThemes.push(key);
+            }
+          } catch {
+            // ignore read errors for individual files
+          }
         }
       }
     } catch {
       // ignore
     }
-    return extras;
+    return { extras, darkThemes };
   }
 
   /** Broadcast an updated theme list to all open markdown editor panels. */
   public static async broadcastThemeList(
     extensionUri: vscode.Uri
   ): Promise<void> {
-    const extras = await MarkdownCustomEditor.scanExtraThemes(extensionUri);
+    const { extras, darkThemes } = await MarkdownCustomEditor.scanExtraThemes(extensionUri);
     for (const panel of MarkdownCustomEditor.activePanels) {
       panel.webview.postMessage({
         command: "update-theme-list",
         extraThemes: extras,
+        darkThemes,
       });
     }
   }
@@ -178,7 +192,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
       .toString();
 
     // Scan content-theme directory for user-imported themes
-    const getExtraThemes = (): Promise<Record<string, string>> =>
+    const getExtraThemes = (): Promise<{ extras: Record<string, string>; darkThemes: string[] }> =>
       MarkdownCustomEditor.scanExtraThemes(this.context.extensionUri);
 
     // Obsidian image format helpers
@@ -198,6 +212,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         options?: unknown;
         theme?: "dark" | "light";
         extraThemes?: Record<string, string>;
+        darkThemes?: string[];
       } = {}
     ): void => {
       let content = document.getText();
@@ -224,7 +239,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     // Listen for theme changes
     disposables.push(
       vscode.window.onDidChangeActiveColorTheme(async (theme) => {
-        const extras = await getExtraThemes();
+        const { extras, darkThemes } = await getExtraThemes();
         updateWebview({
           type: "init",
           options: {
@@ -236,6 +251,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
           theme:
             theme.kind === vscode.ColorThemeKind.Dark ? "dark" : "light",
           extraThemes: extras,
+          darkThemes,
         });
       })
     );
@@ -277,7 +293,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         switch (message.command) {
           case "ready": {
             const stored = this.context.globalState.get(KeyVditorOptions) as Record<string, unknown> ?? {};
-            const extras = await getExtraThemes();
+            const { extras, darkThemes } = await getExtraThemes();
             updateWebview({
               type: "init",
               options: {
@@ -292,6 +308,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
                   ? "dark"
                   : "light",
               extraThemes: extras,
+              darkThemes,
             });
             break;
           }
