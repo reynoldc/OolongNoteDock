@@ -154,6 +154,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     const uri = document.uri;
     const disposables: vscode.Disposable[] = [];
     let isEditing = false;
+    let isApplyingWebviewEdit = false;
 
     MarkdownCustomEditor.activePanels.add(webviewPanel);
 
@@ -262,12 +263,76 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         if (e.document.fileName !== document.fileName) {
           return;
         }
-        // Do not sync when webview panel is active (avoid circular updates)
-        if (webviewPanel.active) {
+        // Skip sync only when the change originates from the webview itself
+        if (isApplyingWebviewEdit) {
           return;
         }
         updateWebview();
         updateEditTitle();
+      })
+    );
+
+    // Watch the file on disk for external modifications (e.g. AI agent, other editors).
+    // onDidChangeTextDocument may not fire if the TextDocument is not "dirty-aware" of
+    // the external write. This watcher covers that gap.
+    const fileWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(
+        vscode.Uri.file(path.dirname(uri.fsPath)),
+        path.basename(uri.fsPath)
+      )
+    );
+    disposables.push(fileWatcher);
+    const onDiskChange = async (): Promise<void> => {
+      if (isApplyingWebviewEdit) return;
+      try {
+        const diskBytes = await vscode.workspace.fs.readFile(uri);
+        const diskContent = Buffer.from(diskBytes).toString("utf-8");
+        if (diskContent !== document.getText()) {
+          const edit = new vscode.WorkspaceEdit();
+          edit.replace(
+            uri,
+            new vscode.Range(0, 0, document.lineCount, 0),
+            diskContent
+          );
+          isApplyingWebviewEdit = true;
+          await vscode.workspace.applyEdit(edit);
+          isApplyingWebviewEdit = false;
+          updateWebview();
+          updateEditTitle();
+        }
+      } catch {
+        // file deleted or inaccessible; ignore
+      }
+    };
+    disposables.push(fileWatcher.onDidChange(onDiskChange));
+
+    // Re-sync content when the panel becomes visible again (safety net)
+    // Read directly from disk since TextDocument may be stale for external changes.
+    disposables.push(
+      webviewPanel.onDidChangeViewState(async () => {
+        if (webviewPanel.visible && !isApplyingWebviewEdit) {
+          try {
+            const diskBytes = await vscode.workspace.fs.readFile(uri);
+            const diskContent = Buffer.from(diskBytes).toString("utf-8");
+            if (diskContent !== document.getText()) {
+              // File changed on disk but TextDocument is stale – reload it
+              // by applying a full-document edit so TextDocument stays in sync.
+              const edit = new vscode.WorkspaceEdit();
+              edit.replace(
+                uri,
+                new vscode.Range(0, 0, document.lineCount, 0),
+                diskContent
+              );
+              isApplyingWebviewEdit = true;
+              await vscode.workspace.applyEdit(edit);
+              isApplyingWebviewEdit = false;
+            }
+          } catch {
+            // file may have been deleted; ignore
+          }
+          updateWebview();
+          updateEditTitle();
+        }
       })
     );
 
@@ -287,7 +352,9 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
             new vscode.Range(0, 0, document.lineCount, 0),
             content
           );
+          isApplyingWebviewEdit = true;
           await vscode.workspace.applyEdit(edit);
+          isApplyingWebviewEdit = false;
         };
 
         switch (message.command) {

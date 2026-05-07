@@ -181,6 +181,16 @@ code --install-extension ./oolong-note-dock-<version>.vsix
 
 - Deep integration of advanced Vditor features (custom renderers, a few shortcuts) is still in progress.
 
+## 📋 Changelog
+
+### v0.0.4
+
+- **Fix**: Editor now auto-refreshes when the file is modified externally (e.g. AI agent, other editors). Previously required closing and reopening the tab.
+
+### v0.0.3
+
+- **Feat**: Theme importer dark-mode support & layout fix.
+
 ## 🗺️ Roadmap
 
 - [ ] Dual-pane view and more complete Markdown coverage
