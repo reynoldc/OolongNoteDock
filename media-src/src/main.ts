@@ -94,6 +94,7 @@ function initVditor(msg) {
     lang,
     value: msg.content,
     mode: 'ir',
+    tab: '\t',
     cdn: msg.cdn || undefined,
     cache: { enable: false },
     toolbar,
@@ -136,6 +137,7 @@ function initVditor(msg) {
       setTimeout(() => markVditorReady(), 300)
     },
     input() {
+      if (suppressInput) return
       inputTimer && clearTimeout(inputTimer)
       inputTimer = setTimeout(() => {
         vscode.postMessage({ command: 'edit', content: vditor.getValue() })
@@ -197,6 +199,9 @@ function applyRemoteTheme(options: any) {
 // Buffer sync-theme messages that arrive before Vditor finishes initializing.
 let pendingSyncTheme: any = null
 
+// Suppress input() callback after external setValue to prevent circular updates.
+let suppressInput = false
+
 window.addEventListener('message', (e) => {
   const msg = e.data
   // console.log('msg from vscode', msg)
@@ -230,7 +235,11 @@ window.addEventListener('message', (e) => {
           setTimeout(() => tryFlush(0), 200)
         }
       } else {
+        // Suppress input() callback to prevent the old content being sent back
+        suppressInput = true
         vditor.setValue(msg.content)
+        // Allow enough time for setValue-triggered input events to be discarded
+        setTimeout(() => { suppressInput = false }, 300)
         console.log('setValue')
       }
       break

@@ -183,6 +183,10 @@ code --install-extension ./oolong-note-dock-<version>.vsix
 
 ## 📋 Changelog
 
+### v0.0.5
+
+- **Fix**: The `Tab` key no longer breaks the editor. Previously pressing Tab in normal text, code blocks, or list items moved focus to the toolbar and hid the caret, because `vditor.options.tab` was never set. Tab now inserts a real tab character, and list-item indent / table cell navigation keep working as before.
+
 ### v0.0.4
 
 - **Fix**: Editor now auto-refreshes when the file is modified externally (e.g. AI agent, other editors). Previously required closing and reopening the tab.

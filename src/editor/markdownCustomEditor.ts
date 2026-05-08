@@ -155,6 +155,9 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     const disposables: vscode.Disposable[] = [];
     let isEditing = false;
     let isApplyingWebviewEdit = false;
+    // Timestamp of the last external sync to webview; used to ignore stale
+    // input() echoes that arrive after setValue().
+    let lastExternalSyncAt = 0;
 
     MarkdownCustomEditor.activePanels.add(webviewPanel);
 
@@ -267,6 +270,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         if (isApplyingWebviewEdit) {
           return;
         }
+        lastExternalSyncAt = Date.now();
         updateWebview();
         updateEditTitle();
       })
@@ -297,6 +301,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
           isApplyingWebviewEdit = true;
           await vscode.workspace.applyEdit(edit);
           isApplyingWebviewEdit = false;
+          lastExternalSyncAt = Date.now();
           updateWebview();
           updateEditTitle();
         }
@@ -330,6 +335,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
           } catch {
             // file may have been deleted; ignore
           }
+          lastExternalSyncAt = Date.now();
           updateWebview();
           updateEditTitle();
         }
@@ -417,7 +423,9 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
             showError(message.content);
             break;
           case "edit":
-            if (webviewPanel.active) {
+            // Ignore edit echoes caused by setValue() after external sync
+            if (webviewPanel.active && !isApplyingWebviewEdit &&
+                Date.now() - lastExternalSyncAt > 500) {
               await syncToEditor();
               updateEditTitle();
             }
