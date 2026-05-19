@@ -162,6 +162,7 @@ body[data-content-theme="opencode"] .vditor-reset {
   --panel-background-color: #0a0a0a;
   --textarea-background-color: #0a0a0a;
   --toolbar-background-color: #0a0a0a;
+  --border-color: #0a0a0a;
   background-color: #0a0a0a;
   --textarea-text-color: #eeeeee;
   color: #eeeeee;
@@ -173,4 +174,11 @@ body[data-content-theme="opencode"] .vditor-ir pre.vditor-reset:focus {
 }
 body[data-content-theme="opencode"] .vditor .vditor-toolbar {
   background-color: #0a0a0a;
+}
+/* 去掉 vditor 容器外圈和工具栏下边的浅色边框 */
+body[data-content-theme="opencode"] .vditor {
+  border-color: #0a0a0a;
+}
+body[data-content-theme="opencode"] .vditor .vditor-toolbar {
+  border-bottom-color: #0a0a0a;
 }
