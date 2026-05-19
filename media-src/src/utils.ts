@@ -296,3 +296,93 @@ export function fixCut() {
     }
   }
 }
+
+/**
+ * Fix copy in Vditor preview mode.
+ *
+ * Two interacting issues:
+ *
+ * 1. The active element in preview mode (`<div class="vditor-preview">`) is
+ *    not contenteditable, and VS Code's webview sandbox does not reliably
+ *    populate the clipboard with the default selection in that case.
+ *
+ * 2. Vditor itself attaches a `copy` listener to `previewElement` that calls
+ *    `n.preventDefault()` and then internally invokes
+ *    `document.execCommand('copy')` recursively — Chromium blocks recursive
+ *    execCommand inside a copy handler (no fresh user gesture), so the
+ *    re-copy silently fails. Vditor then unconditionally shows a
+ *    "已复制到剪切板" tip, which is exactly the misleading toast users see.
+ *
+ * Fix: register a capture-phase `copy` listener on document. We run BEFORE
+ * Vditor's bubble-phase handler and explicitly set both `text/plain` and
+ * `text/html` on `clipboardData`, then `preventDefault()`. When the selection
+ * is clearly in the preview area, also call `stopImmediatePropagation()` so
+ * Vditor's broken handler never runs (this also avoids it clobbering the
+ * user's selection as a side effect of its execCommand workaround).
+ *
+ * For IR / WYSIWYG / SV (all contenteditable), we bail out and let Vditor's
+ * own copy path handle things — those modes already work correctly.
+ */
+export function fixPreviewCopy() {
+  const isInsideEditable = (node: Node | null): boolean => {
+    let cur: Node | null = node
+    while (cur) {
+      if (cur.nodeType === Node.ELEMENT_NODE) {
+        const el = cur as HTMLElement
+        const tag = el.tagName
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return true
+        const ce = el.getAttribute && el.getAttribute('contenteditable')
+        if (ce === 'true' || ce === '') return true
+        if (ce === 'false') return false
+      }
+      cur = cur.parentNode
+    }
+    return false
+  }
+
+  const isInPreview = (node: Node | null): boolean => {
+    let cur: Node | null = node
+    while (cur) {
+      if (cur.nodeType === Node.ELEMENT_NODE) {
+        const el = cur as HTMLElement
+        if (el.classList && el.classList.contains('vditor-preview')) return true
+      }
+      cur = cur.parentNode
+    }
+    return false
+  }
+
+  document.addEventListener(
+    'copy',
+    (e: ClipboardEvent) => {
+      const sel = document.getSelection()
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0) return
+      // Editable contexts (IR/WYSIWYG/SV, inputs, etc.) — let the existing
+      // Vditor / native handler win. We don't want to regress those paths.
+      if (isInsideEditable(sel.anchorNode)) return
+      if (!e.clipboardData) return
+
+      const text = sel.toString()
+      if (!text) return
+
+      const container = document.createElement('div')
+      for (let i = 0; i < sel.rangeCount; i++) {
+        container.appendChild(sel.getRangeAt(i).cloneContents())
+      }
+
+      try {
+        e.clipboardData.setData('text/plain', text)
+        e.clipboardData.setData('text/html', container.innerHTML)
+        e.preventDefault()
+        // If the selection is in preview, also stop Vditor's bubble handler
+        // from running its broken recursive-execCommand workaround.
+        if (isInPreview(sel.anchorNode)) {
+          e.stopImmediatePropagation()
+        }
+      } catch {
+        // If the env refuses setData (very old / sandboxed), let default run.
+      }
+    },
+    true // capture phase — beat Vditor's previewElement handler
+  )
+}

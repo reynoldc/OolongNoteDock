@@ -6,6 +6,7 @@ import {
   fixDarkTheme,
   fixLinkClick,
   fixPanelHover,
+  fixPreviewCopy,
   handleToolbarClick,
   markVditorReady,
   resetVditorReady,
@@ -331,6 +332,7 @@ window.addEventListener('message', (e) => {
 
 fixLinkClick()
 fixCut()
+fixPreviewCopy()
 setupFind()
 
 vscode.postMessage({ command: 'ready' })
