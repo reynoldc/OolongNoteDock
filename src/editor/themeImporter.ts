@@ -375,11 +375,10 @@ export async function importTheme(
 }
 
 const BUILT_IN_THEMES = new Set([
-  "ant-design",
   "dark",
-  "drake-ayu",
   "github",
   "light",
+  "opencode",
   "vue",
   "wechat",
 ]);

@@ -36,11 +36,10 @@ function initVditor(msg) {
   ;(window as any).__ondDarkThemes = darkThemes
 
   const themeList = {
-    "ant-design": "Ant Design",
     "dark": "Dark",
-    "drake-ayu": "Drake Ayu",
     "github": "GitHub",
     "light": "Light",
+    "opencode": "Opencode",
     "vue": "Vue",
     "wechat": "WeChat",
     ...(msg.extraThemes || {}),
@@ -60,8 +59,10 @@ function initVditor(msg) {
     }
   })
 
-  // Determine content theme: saved > fallback based on VS Code theme
-  const fallbackTheme = msg.theme === 'dark' ? 'dark' : 'light'
+  // Determine content theme: saved > "opencode" (project default).
+  // We intentionally pin the fallback to opencode regardless of VS Code's
+  // light/dark setting; users can switch via the content-theme picker.
+  const fallbackTheme = 'opencode'
   const contentTheme = savedContentTheme || fallbackTheme
 
   // Chrome theme follows content theme based on background luminance.
@@ -266,11 +267,10 @@ window.addEventListener('message', (e) => {
         ;(window as any).__ondDarkThemes = darkThemes
 
         const builtIn: Record<string, string> = {
-          'ant-design': 'Ant Design',
           'dark': 'Dark',
-          'drake-ayu': 'Drake Ayu',
           'github': 'GitHub',
           'light': 'Light',
+          'opencode': 'Opencode',
           'vue': 'Vue',
           'wechat': 'WeChat',
         }

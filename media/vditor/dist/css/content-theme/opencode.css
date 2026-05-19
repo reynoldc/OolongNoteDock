@@ -1,0 +1,176 @@
+/* @ond-chrome: dark */
+:root {
+  
+  --oc-primary: #fab283;       
+  --oc-secondary: #5c9cf5;    
+  --oc-accent: #9d7cd8;       
+  --oc-red: #e06c75;
+  --oc-orange: #f5a742;
+  --oc-green: #7fd88f;
+  --oc-cyan: #56b6c2;
+  --oc-yellow: #e5c07b;
+  --oc-text: #eeeeee;         
+  --oc-text-muted: #808080;   
+  --oc-bg1: #0a0a0a;          
+  --oc-bg2: #141414;          
+  --oc-bg3: #1e1e1e;          
+  --oc-bg4: #282828;          
+  --oc-border: #484848;       
+  --oc-border-active: #606060; 
+}
+.vditor-reset h1, .vditor-reset h2, .vditor-reset h3, .vditor-reset h4, .vditor-reset h5, .vditor-reset h6 {
+  color: var(--oc-accent);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-left: -22px;
+}
+.vditor-reset h1::before, .vditor-reset h2::before, .vditor-reset h3::before, .vditor-reset h4::before, .vditor-reset h5::before, .vditor-reset h6::before {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--oc-text-muted);
+  margin-right: 0.6em;
+  vertical-align: baseline;
+  letter-spacing: 0.02em;
+}
+.vditor-reset h1::before { content: "H1"; }
+.vditor-reset h2::before { content: "H2"; }
+.vditor-reset h3::before { content: "H3"; }
+.vditor-reset h4::before { content: "H4"; }
+.vditor-reset h5::before { content: "H5"; }
+.vditor-reset h6::before { content: "H6"; }
+.vditor-reset h1 {
+  margin-top: 1.6em;
+  font-size: 2em;
+  border-bottom: 1px solid var(--oc-border);
+  padding-bottom: 8px;
+}
+.vditor-reset h2 {
+  margin-top: 1.8em;
+  font-size: 1.5em;
+}
+.vditor-reset h3 {
+  margin-top: 1.5em;
+  font-size: 1.25em;
+}
+.vditor-reset h4 {
+  font-size: 1.1em;
+}
+.vditor-reset strong, b {
+  color: var(--oc-orange);
+  font-weight: 600;
+}
+.vditor-reset em {
+  color: var(--oc-yellow);
+}
+.vditor-reset del {
+  color: var(--oc-text-muted);
+}
+.vditor-reset a {
+  color: var(--oc-primary);
+  text-decoration: none;
+}
+.vditor-reset a:hover {
+  color: #ffc09f;
+  text-decoration: underline;
+}
+.vditor-reset ul {
+  list-style: disc;
+  padding-left: 1.5em;
+}
+.vditor-reset ol {
+  padding-left: 1.5em;
+}
+.vditor-reset li::marker {
+  color: var(--oc-secondary);
+}
+.vditor-reset blockquote {
+  margin-left: 0;
+  padding: 12px 16px;
+  border-left: 4px solid var(--oc-accent);
+  background-color: var(--oc-bg2);
+  border-radius: 0 8px 8px 0;
+  color: var(--oc-text);
+}
+.vditor-reset code, .vditor-reset pre {
+  font-size: 0.9em;
+}
+.vditor-reset code {
+  background: var(--oc-bg3);
+  color: var(--oc-text);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.vditor-reset pre {
+  background: var(--oc-bg2);
+  border: 1px solid var(--oc-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 1.5em;
+}
+.vditor-reset pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+.vditor-reset table {
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+  width: 100%;
+}
+.vditor-reset table th, .vditor-reset table td {
+  padding: 10px 16px;
+  line-height: 1.5;
+  vertical-align: top;
+  border: 1px solid var(--oc-border);
+}
+.vditor-reset table th {
+  font-weight: 600;
+  color: var(--oc-accent);
+  background-color: var(--oc-bg3);
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(157,124,216,0.08) 4px, rgba(157,124,216,0.08) 5px),
+    repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(157,124,216,0.08) 4px, rgba(157,124,216,0.08) 5px);
+}
+.vditor-reset table td {
+  background-color: var(--oc-bg1);
+}
+.vditor-reset table td:first-child {
+  color: var(--oc-primary);
+  font-weight: 500;
+}
+.vditor-reset table tbody tr:nth-child(even) td {
+  background-color: var(--oc-bg1);
+}
+.vditor-reset table tbody tr:nth-child(odd) td {
+  background-color: var(--oc-bg2);
+}
+.vditor-reset table tbody tr:hover td {
+  background-color: var(--oc-bg3);
+}
+.vditor-reset hr {
+  border: none;
+  border-top: 1px solid var(--oc-border);
+  margin: 24px 0;
+}
+::selection {
+  background-color: rgba(92, 156, 245, 0.3);
+}
+
+/* OolongNoteDock: palette imported from the original body { ... } block. */
+body[data-content-theme="opencode"] .vditor,
+body[data-content-theme="opencode"] .vditor-reset {
+  --panel-background-color: #0a0a0a;
+  --textarea-background-color: #0a0a0a;
+  --toolbar-background-color: #0a0a0a;
+  background-color: #0a0a0a;
+  --textarea-text-color: #eeeeee;
+  color: #eeeeee;
+}
+body[data-content-theme="opencode"] .vditor-ir pre.vditor-reset,
+body[data-content-theme="opencode"] .vditor-ir pre.vditor-reset:focus {
+  background-color: #0a0a0a;
+  color: #eeeeee;
+}
+body[data-content-theme="opencode"] .vditor .vditor-toolbar {
+  background-color: #0a0a0a;
+}

@@ -60,7 +60,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     extensionUri: vscode.Uri
   ): Promise<{ extras: Record<string, string>; darkThemes: string[] }> {
     const builtIn = new Set([
-      "ant-design", "dark", "drake-ayu", "github", "light", "vue", "wechat",
+      "dark", "github", "light", "opencode", "vue", "wechat",
     ]);
     const extras: Record<string, string> = {};
     const darkThemes: string[] = [];
