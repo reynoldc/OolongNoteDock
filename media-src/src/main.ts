@@ -21,6 +21,7 @@ import 'vditor/dist/index.css'
 import { t, lang } from './lang'
 import { toolbar } from './toolbar'
 import { fixTableIr } from './fix-table-ir'
+import { setupFind } from './find'
 import './main.css'
 
 function initVditor(msg) {
@@ -330,5 +331,6 @@ window.addEventListener('message', (e) => {
 
 fixLinkClick()
 fixCut()
+setupFind()
 
 vscode.postMessage({ command: 'ready' })

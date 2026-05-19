@@ -77,3 +77,74 @@ body[data-use-vscode-theme-color="1"][data-content-theme="dark"] .vditor {
 .jconfirm-buttons button {
   text-transform: none!important;
 }
+
+/* ---- In-webview find overlay (Ctrl+F) ---- */
+.ond-find-bar {
+  position: fixed;
+  top: 8px;
+  right: 16px;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--vscode-editorWidget-background, #fff);
+  color: var(--vscode-editorWidget-foreground, #333);
+  border: 1px solid var(--vscode-editorWidget-border, #ccc);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-family: var(--vscode-font-family, sans-serif);
+  font-size: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* keep the input itself selectable so users can select/copy what they typed */
+.ond-find-bar .ond-find-input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+.ond-find-input {
+  width: 220px;
+  padding: 3px 6px;
+  background: var(--vscode-input-background, #fff);
+  color: var(--vscode-input-foreground, #000);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 2px;
+  outline: none;
+  font: inherit;
+}
+.ond-find-input:focus {
+  border-color: var(--vscode-focusBorder, #007acc);
+}
+.ond-find-count {
+  min-width: 48px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground, #888);
+  font-variant-numeric: tabular-nums;
+}
+.ond-find-btn {
+  background: transparent;
+  color: inherit;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+  font: inherit;
+  line-height: 1;
+}
+.ond-find-btn:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(127, 127, 127, 0.2));
+}
+.ond-find-btn.ond-find-active {
+  background: var(--vscode-inputOption-activeBackground, rgba(14, 99, 156, 0.4));
+  color: var(--vscode-inputOption-activeForeground, inherit);
+  outline: 1px solid var(--vscode-inputOption-activeBorder, transparent);
+}
+::highlight(ond-find) {
+  background-color: rgba(255, 200, 0, 0.4);
+  color: inherit;
+}
+::highlight(ond-find-current) {
+  background-color: rgba(255, 140, 0, 0.75);
+  color: inherit;
+}

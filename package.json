@@ -140,6 +140,7 @@
       { "command": "oolongNoteDock.noop", "key": "ctrl+u", "mac": "cmd+u", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
       { "command": "oolongNoteDock.noop", "key": "ctrl+d", "mac": "cmd+d", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
       { "command": "oolongNoteDock.noop", "key": "ctrl+e", "mac": "cmd+e", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
+      { "command": "oolongNoteDock.noop", "key": "ctrl+f", "mac": "cmd+f", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
       { "command": "oolongNoteDock.noop", "key": "ctrl+h", "mac": "cmd+h", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
       { "command": "oolongNoteDock.noop", "key": "ctrl+j", "mac": "cmd+j", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
       { "command": "oolongNoteDock.noop", "key": "ctrl+k", "mac": "cmd+k", "when": "activeWebviewPanelId == oolongNoteDock.markdown" },
