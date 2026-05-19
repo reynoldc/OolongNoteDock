@@ -276,6 +276,45 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
       })
     );
 
+    // Reload the TextDocument from disk if it's out of sync with the file on
+    // disk. Returns true if a reload actually happened.
+    //
+    // When the user has no local unsaved edits, we follow the applyEdit with a
+    // document.save(). The save writes the same bytes back, but it clears the
+    // dirty flag and resets VS Code's "modified-since-load" marker — without
+    // this, the tab keeps the [edit] indicator and Ctrl+S triggers a spurious
+    // "file changed on disk, overwrite?" prompt even though there is nothing
+    // to overwrite. If the document IS dirty, we keep the applyEdit but skip
+    // the save, since that would silently clobber the user's in-flight edits.
+    const reloadFromDisk = async (): Promise<boolean> => {
+      if (isApplyingWebviewEdit) return false;
+      try {
+        const diskBytes = await vscode.workspace.fs.readFile(uri);
+        const diskContent = Buffer.from(diskBytes).toString("utf-8");
+        if (diskContent === document.getText()) return false;
+        const wasDirty = document.isDirty;
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(
+          uri,
+          new vscode.Range(0, 0, document.lineCount, 0),
+          diskContent
+        );
+        isApplyingWebviewEdit = true;
+        try {
+          await vscode.workspace.applyEdit(edit);
+          if (!wasDirty) {
+            await document.save();
+          }
+        } finally {
+          isApplyingWebviewEdit = false;
+        }
+        return true;
+      } catch {
+        // file deleted or inaccessible; ignore
+        return false;
+      }
+    };
+
     // Watch the file on disk for external modifications (e.g. AI agent, other editors).
     // onDidChangeTextDocument may not fire if the TextDocument is not "dirty-aware" of
     // the external write. This watcher covers that gap.
@@ -286,55 +325,22 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
       )
     );
     disposables.push(fileWatcher);
-    const onDiskChange = async (): Promise<void> => {
-      if (isApplyingWebviewEdit) return;
-      try {
-        const diskBytes = await vscode.workspace.fs.readFile(uri);
-        const diskContent = Buffer.from(diskBytes).toString("utf-8");
-        if (diskContent !== document.getText()) {
-          const edit = new vscode.WorkspaceEdit();
-          edit.replace(
-            uri,
-            new vscode.Range(0, 0, document.lineCount, 0),
-            diskContent
-          );
-          isApplyingWebviewEdit = true;
-          await vscode.workspace.applyEdit(edit);
-          isApplyingWebviewEdit = false;
+    disposables.push(
+      fileWatcher.onDidChange(async () => {
+        if (await reloadFromDisk()) {
           lastExternalSyncAt = Date.now();
           updateWebview();
           updateEditTitle();
         }
-      } catch {
-        // file deleted or inaccessible; ignore
-      }
-    };
-    disposables.push(fileWatcher.onDidChange(onDiskChange));
+      })
+    );
 
-    // Re-sync content when the panel becomes visible again (safety net)
+    // Re-sync content when the panel becomes visible again (safety net).
     // Read directly from disk since TextDocument may be stale for external changes.
     disposables.push(
       webviewPanel.onDidChangeViewState(async () => {
         if (webviewPanel.visible && !isApplyingWebviewEdit) {
-          try {
-            const diskBytes = await vscode.workspace.fs.readFile(uri);
-            const diskContent = Buffer.from(diskBytes).toString("utf-8");
-            if (diskContent !== document.getText()) {
-              // File changed on disk but TextDocument is stale – reload it
-              // by applying a full-document edit so TextDocument stays in sync.
-              const edit = new vscode.WorkspaceEdit();
-              edit.replace(
-                uri,
-                new vscode.Range(0, 0, document.lineCount, 0),
-                diskContent
-              );
-              isApplyingWebviewEdit = true;
-              await vscode.workspace.applyEdit(edit);
-              isApplyingWebviewEdit = false;
-            }
-          } catch {
-            // file may have been deleted; ignore
-          }
+          await reloadFromDisk();
           lastExternalSyncAt = Date.now();
           updateWebview();
           updateEditTitle();
