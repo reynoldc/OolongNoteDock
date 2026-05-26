@@ -209,6 +209,26 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         .replace(/\\/g, "/");
     };
 
+    // Read user-facing display preferences. defaultOpenMode is resource-scoped
+    // (project-level), autoOpenOutline is window-scoped (global). We re-read
+    // them on every init so changes take effect on the next document open
+    // without requiring a window reload.
+    const getDisplayPrefs = (): {
+      defaultOpenMode: "edit" | "preview";
+      autoOpenOutline: boolean;
+    } => {
+      const scoped = vscode.workspace.getConfiguration(
+        "oolongNoteDock",
+        uri
+      );
+      const mode = scoped.get<string>("defaultOpenMode");
+      return {
+        defaultOpenMode: mode === "preview" ? "preview" : "edit",
+        autoOpenOutline:
+          this.config.get<boolean>("autoOpenOutline") === true,
+      };
+    };
+
     // Send update to webview
     const updateWebview = (
       props: {
@@ -217,6 +237,8 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
         theme?: "dark" | "light";
         extraThemes?: Record<string, string>;
         darkThemes?: string[];
+        defaultOpenMode?: "edit" | "preview";
+        autoOpenOutline?: boolean;
       } = {}
     ): void => {
       let content = document.getText();
@@ -244,6 +266,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
     disposables.push(
       vscode.window.onDidChangeActiveColorTheme(async (theme) => {
         const { extras, darkThemes } = await getExtraThemes();
+        const prefs = getDisplayPrefs();
         updateWebview({
           type: "init",
           options: {
@@ -256,6 +279,8 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
             theme.kind === vscode.ColorThemeKind.Dark ? "dark" : "light",
           extraThemes: extras,
           darkThemes,
+          defaultOpenMode: prefs.defaultOpenMode,
+          autoOpenOutline: prefs.autoOpenOutline,
         });
       })
     );
@@ -373,6 +398,7 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
           case "ready": {
             const stored = this.context.globalState.get(KeyVditorOptions) as Record<string, unknown> ?? {};
             const { extras, darkThemes } = await getExtraThemes();
+            const prefs = getDisplayPrefs();
             updateWebview({
               type: "init",
               options: {
@@ -388,6 +414,8 @@ export class MarkdownCustomEditor implements vscode.CustomTextEditorProvider {
                   : "light",
               extraThemes: extras,
               darkThemes,
+              defaultOpenMode: prefs.defaultOpenMode,
+              autoOpenOutline: prefs.autoOpenOutline,
             });
             break;
           }

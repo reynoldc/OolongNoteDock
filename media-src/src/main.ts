@@ -36,6 +36,11 @@ function initVditor(msg) {
   const darkThemes: Set<string> = new Set(['dark', ...(msg.darkThemes || [])])
   ;(window as any).__ondDarkThemes = darkThemes
 
+  // User-facing display preferences from extension settings.
+  const defaultOpenMode: 'edit' | 'preview' =
+    msg.defaultOpenMode === 'preview' ? 'preview' : 'edit'
+  const autoOpenOutline: boolean = msg.autoOpenOutline === true
+
   const themeList = {
     "dark": "Dark",
     "github": "GitHub",
@@ -79,6 +84,15 @@ function initVditor(msg) {
   defaultOptions.preview.theme = {
     current: contentTheme,
     list: themeList,
+  }
+
+  // Apply outline auto-open setting. We always overwrite, so the global
+  // setting fully drives the initial outline state on every document open;
+  // toggling outline via the toolbar stays session-only (it's not persisted
+  // back to globalState by saveVditorOptions).
+  defaultOptions.outline = {
+    enable: autoOpenOutline,
+    position: 'left',
   }
 
   // Expose the current content theme as a data attribute so main.css can
@@ -138,6 +152,25 @@ function initVditor(msg) {
       }, 50)
       // Mark ready after all init is done, so observers don't fire during setup
       setTimeout(() => markVditorReady(), 300)
+
+      // If the project is configured to open documents in preview mode, click
+      // the preview toolbar button after Vditor is ready. We do this rather
+      // than calling Vditor's internal preview-render directly because the
+      // toolbar button handler also handles disabling other toolbar items
+      // and showing the "current" highlight, keeping the UI consistent with
+      // a manual click.
+      if (defaultOpenMode === 'preview') {
+        setTimeout(() => {
+          try {
+            const previewBtn = document.querySelector(
+              '[data-type="preview"]'
+            ) as HTMLElement | null
+            if (previewBtn) previewBtn.click()
+          } catch (err) {
+            console.error('[OND] auto preview-mode failed', err)
+          }
+        }, 350)
+      }
     },
     input() {
       if (suppressInput) return

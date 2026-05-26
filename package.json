@@ -2,7 +2,7 @@
   "name": "oolong-note-dock",
   "displayName": "OolongNoteDock",
   "description": "OolongNoteDock VSCode 笔记插件",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "oolong",
   "repository": {
     "type": "git",
@@ -258,6 +258,25 @@
             "default": false,
             "scope": "resource",
             "description": "%config.oolongNoteDock.obsidianImageFormat%"
+          },
+          "oolongNoteDock.defaultOpenMode": {
+            "type": "string",
+            "enum": [
+              "edit",
+              "preview"
+            ],
+            "enumDescriptions": [
+              "%config.oolongNoteDock.defaultOpenMode.edit%",
+              "%config.oolongNoteDock.defaultOpenMode.preview%"
+            ],
+            "default": "edit",
+            "scope": "resource",
+            "description": "%config.oolongNoteDock.defaultOpenMode%"
+          },
+          "oolongNoteDock.autoOpenOutline": {
+            "type": "boolean",
+            "default": false,
+            "description": "%config.oolongNoteDock.autoOpenOutline%"
           }
         }
       },
